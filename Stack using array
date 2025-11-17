@@ -1,0 +1,102 @@
+#include <iostream>
+using namespace std;
+
+class Stack {
+private:
+    int stack_size; // number of elements currently in stack
+    int array_capacity;  // capacity of the array
+    int* array;          // pointer to dynamic array
+
+    //function to double the capacity
+    void double_capacity() {
+        int* tmp_array = new int[2 * array_capacity]; // allocate new array with double capacity
+        for (int i = 0; i < array_capacity; ++i) {
+            tmp_array[i] = array[i];                 // copy old values
+        }
+        delete[] array; // delete old array
+        array = tmp_array;// point array to new memory
+        array_capacity *= 2;                // update capacity
+        cout << "Stack capacity doubled to " << array_capacity << endl;
+    }
+
+public:
+    // Constructor
+    Stack(int n = 10) {
+        stack_size = 0;
+       // ensure capacity is at least 1
+        if (n < 1) {
+            array_capacity = 1;
+        }
+        else {
+            array_capacity = n;
+        }
+
+        array_capacity = n;
+        array = new int[array_capacity]; // allocate memory for array
+    }
+
+    // Destructor
+    ~Stack() {
+        delete[] array;// free memory
+    }
+    bool empty() const {
+        return stack_size == 0;// stack is empty if size is 0
+    }
+
+    //top element
+    int top() const {
+        if (empty()) {// if stack is empty
+            cout << "Stack Underflow! Stack is empty.\n";
+            return -1;                              
+        }
+        return array[stack_size - 1];// last element is top
+    }
+    // Push element onto stack
+    void push(int obj) {
+        if (stack_size == array_capacity) { // if array is full
+            double_capacity();// double the capacity
+        }
+        array[stack_size] = obj;// add element at top
+        stack_size++; // increase stack size
+    }
+
+    int pop() {
+        if (empty()) { // if stack is empty
+            cout << "Stack Underflow! Cannot pop.\n";
+            return -1;
+        }
+        stack_size--;  // reduce stack size
+        return array[stack_size];// return the popped element
+    }
+
+    void display() const {
+        if (empty()) {
+            cout << "Stack is empty.\n";
+            return;
+        }
+        cout << "Stack elements (top to bottom): ";
+        for (int i = stack_size - 1; i >= 0; --i) {
+            cout << array[i] << " ";
+        }
+        cout << endl;
+    }
+};
+
+int main() {
+    Stack st(3); // create stack with capacity 3
+
+    st.push(10);
+    st.push(20);
+    st.push(30);
+    st.display();
+
+    st.push(40); // triggers capacity doubling
+    st.display();
+
+    cout << "Top element: " << st.top() << endl;
+
+    st.pop();
+    st.display();
+
+    return 0;
+}
