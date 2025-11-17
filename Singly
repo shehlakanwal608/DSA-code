@@ -1,0 +1,254 @@
+
+#include<iostream>
+using namespace std;
+class Node {
+private:
+    int data;
+    Node* next;    
+
+public:
+    // Constructor with default parameters
+    Node(int d = 0, Node* p = nullptr) {
+        data = d;    // set data
+        next = p;    // set next pointer
+    }
+
+    // Setter for data
+    void setData(int val) {
+        data = val;
+    }
+
+    // Setter for next pointer
+    void setNext(Node* p) {
+        next = p;
+    }
+
+    // Getter for data
+    int retreive() const {
+        return data;
+    }
+
+    // Getter for next pointer
+    Node* getNext() const {
+        return next;
+    }
+};
+
+// List class
+class List {
+private:
+    Node* head;  // pointer to first node
+    Node* tail;  // pointer to last node
+
+public:
+    // Constructor
+    List() {
+        head = nullptr; // initially head is null
+        tail = nullptr; // initially tail is null
+    }
+
+    // Destructor: delete all nodes
+    ~List() {
+        while (!empty()) {
+            pop_front();
+        }
+    }
+
+    // Accessors
+
+    // Check if list is empty
+    bool empty() const {
+        return head == nullptr;
+    }
+
+    // Get element at front (head)
+    int front() const {
+        if (empty()) {
+            cout << "List is empty.";
+            return -1;
+        }
+        return head->retreive(); // use getter
+    }
+
+    // Get element at end (tail)
+    int end() const {
+        if (empty()) {
+            cout << "List is empty.";
+            return -1;
+        }
+        return tail->retreive();
+    }
+
+    // Get size of list
+    int size() const {
+        int count = 0;
+        for (Node* p = head; p != nullptr; p = p->getNext()) { // traverse using getter
+            count++;  // count each node
+        }
+        return count;
+    }
+
+    // Count occurrences of a value
+    int countValue(int val) const {
+        int c = 0;
+        for (Node* p = head; p != nullptr; p = p->getNext()) {
+            if (p->retreive() == val) { // use getter to compare data
+                c++;
+            }
+        }
+        return c;
+    }
+
+    // Display all elements
+    void display() const {
+        if (empty()) {  // check if list is empty
+            cout << "List is empty.\n";
+            return;
+        }
+        cout << "List elements: ";
+        for (Node* p = head; p != nullptr; p = p->getNext()) {
+            cout << p->retreive() << " "; // print data using getter
+        }
+        cout << endl;
+    }
+
+    // Mutators
+
+    // Insert at front
+    void push_front(int val) {
+        Node* newNode = new Node(val, nullptr); // create new node
+
+        if (empty()) {          // list is empty
+            head = newNode;     // head points to new node
+            tail = newNode;     // tail also points to new node
+        }
+        else {                // list has at least one node
+            newNode->setNext(head); // new node points to old head
+            head = newNode;          // update head to new node
+        }
+    }
+
+    // Insert at end
+    void push_back(int val) {
+        Node* newNode = new Node(val, nullptr); // create node with val, next=nullptr
+        if (empty()) {                          // if list is empty
+            head = newNode;                     // head points to new node
+            tail = newNode;                     // tail points to new node
+        }
+        else {
+            tail->setNext(newNode);             // connect old tail to new node
+            tail = newNode;                     // update tail
+        }
+    }
+
+    // Delete first node
+    void pop_front() {
+        if (empty()) {
+            cout << "List is empty,\n";
+            return;
+        }
+        Node* temp = head;             // store current head
+        head = head->getNext();        // move head to next node
+        delete temp;                   // delete old head
+        if (head == nullptr) {         // if list became empty
+            tail = nullptr;            // update tail
+        }
+    }
+
+    // Delete last node
+    void pop_back() {
+        if (empty()) {
+            cout << "List is empty, cannot delete.\n";
+            return;
+        }
+        if (head == tail) {            // only one node
+            delete head;               // delete the node
+            head = nullptr;            // update head
+            tail = nullptr;            // update tail
+            return;
+        }
+        Node* prev = head;
+        while (prev->getNext() != tail) { // find node before tail
+            prev = prev->getNext();       // traverse using getter
+        }
+        delete tail;                  // delete old tail
+        tail = prev;                  // update tail
+        tail->setNext(nullptr);       // tail's next is null
+    }
+
+    // Insert at a specific position
+    void insertion(int pos, int val) {
+        int length = size();                  // get total nodes
+        if (pos < 0 || pos > length) {       // invalid position
+            cout << "Invalid position.\n";
+            return;
+        }
+        if (pos == 0) {                       // insert at front
+            push_front(val);
+            return;
+        }
+        if (pos == length) {                  // insert at end
+            push_back(val);
+            return;
+        }
+        Node* newNode = new Node(val);        // create new node
+        Node* prev = head;
+        for (int i = 0; i < pos - 1; i++) {
+            prev = prev->getNext();           // traverse using getter
+        }
+        newNode->setNext(prev->getNext());    // link new node to next node
+        prev->setNext(newNode);               // link previous node to new node
+    }
+
+    // Delete node at a specific position
+    void erase(int pos) {
+        int length = size();                  // get total nodes
+        if (pos < 0 || pos >= length) {      // invalid position
+            cout << "Invalid position.\n";
+            return;
+        }
+        if (pos == 0) {                       // delete first node
+            pop_front();
+            return;
+        }
+        if (pos == length - 1) {              // delete last node
+            pop_back();
+            return;
+        }
+        Node* prev = head;                    // start from head
+        for (int i = 0; i < pos - 1; i++) {
+            prev = prev->getNext();           // traverse to node before target
+        }
+        Node* delNode = prev->getNext();       // node to delete
+        prev->setNext(delNode->getNext());     // link previous node to next node
+        delete delNode;                        // free memory
+    }
+};
+
+// Main function
+int main() {
+    List li;
+
+    li.push_front(10);
+    li.push_front(20);
+    li.push_back(30);
+    li.push_back(40);
+    li.push_back(50);
+    li.display();
+    cout << "Head element: " << li.front() << endl;
+    cout<< "Tail: elemnt: " << li.end() << endl;
+
+    li.pop_front();
+    li.display();
+
+    li.pop_back();
+    li.display();
+
+    li.insertion(1, 60);
+    li.display();
+
+    li.erase(0);
+    li.display();
+
+    return 0;
+}
