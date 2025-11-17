@@ -1,0 +1,177 @@
+#include <iostream>
+using namespace std;
+
+// Node class as in your singly linked list
+class Node {
+private:
+    int data;   // stores value
+    Node* next; // pointer to next node
+
+public:
+    // Constructor
+    Node(int d = 0, Node* n = nullptr) {
+        data = d;   // set data
+        next = n;   // set next pointer
+    }
+
+    // Setter for data
+    void setData(int val) {
+        data = val;
+    }
+
+    // Setter for next pointer
+    void setNext(Node* n) {
+        next = n;
+    }
+
+    // Getter for data
+    int retreive() const {
+        return data;
+    }
+
+    // Getter for next pointer
+    Node* getNext() const {
+        return next;
+    }
+};
+
+// Singly linked list class
+class List {
+private:
+    Node* head;  // pointer to first node
+    Node* tail;  // pointer to last node
+
+public:
+    // Constructor
+    List() {
+        head = nullptr; // empty list
+        tail = nullptr;
+    }
+
+    // Destructor
+    ~List() {
+        while (!empty()) {
+            pop_front(); // delete all nodes
+        }
+    }
+
+    // Accessors
+    bool empty() const { // check if list is empty
+        return head == nullptr;
+    }
+
+    int front() const { // get head element
+        if (empty()) {
+            cout << "List is empty.\n";
+            return -1;
+        }
+        return head->retreive(); // use getter
+    }
+
+    int size() const { // count total nodes
+        int count = 0;
+        for (Node* p = head; p != nullptr; p = p->getNext()) {
+            count++;
+        }
+        return count;
+    }
+
+    void display() const { // print all elements
+        if (empty()) {
+            cout << "List is empty.\n";
+            return;
+        }
+        cout << "List elements: ";
+        for (Node* p = head; p != nullptr; p = p->getNext()) {
+            cout << p->retreive() << " ";
+        }
+        cout << endl;
+    }
+
+    // Mutators
+    void push_front(int val) { // insert at front
+        Node* newNode = new Node(val, head); // new node points to current head
+        head = newNode;                       // update head
+        if (tail == nullptr) {                // if first node
+            tail = newNode;
+        }
+    }
+
+    void pop_front() { // delete first node
+        if (empty()) {
+            cout << "List is empty.\n";
+            return;
+        }
+        Node* temp = head;        // store old head
+        head = head->getNext();   // move head to next node
+        delete temp;              // free memory
+        if (head == nullptr) {    // if list became empty
+            tail = nullptr;
+        }
+    }
+};
+
+// Stack using singly linked list
+class Stack {
+private:
+    List lst; // underlying singly linked list
+
+public:
+    // Constructor
+    Stack() {}
+
+    // Check if stack is empty
+    bool empty() const {
+        return lst.empty(); // reuse list empty function
+    }
+
+    // Push element onto stack
+    void push(int val) {
+        lst.push_front(val); // insert at front of list
+    }
+
+    // Pop element from stack
+    void pop() {
+        if (empty()) {
+            cout << "Stack is empty, cannot pop.\n";
+            return;
+        }
+        lst.pop_front(); // remove front element
+    }
+
+    // Return top element of stack
+    int top() const {
+        if (empty()) {
+            cout << "Stack is empty.\n";
+            return -1;
+        }
+        return lst.front(); // front element is top of stack
+    }
+
+    // Display stack elements
+    void display() const {
+        lst.display(); // reuse list display function
+    }
+};
+
+// Main function to test stack
+int main() {
+    Stack st;
+
+    st.push(10);
+    st.push(20);
+    st.push(30);
+
+    st.display();
+    cout << "Top element: " << st.top() << endl;
+
+    st.pop();
+    st.display();
+    cout << "Top element: " << st.top() << endl;
+
+    st.pop();
+    st.pop();
+    st.pop(); // trying to pop empty stack
+
+    return 0;
+}
