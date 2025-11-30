@@ -1,0 +1,289 @@
+#include <iostream>
+using namespace std;
+
+template <class T>
+class Node {
+private:
+    T data;        // stores value of node
+    Node* next;    // pointer to next node
+
+public:
+    Node(T d = 0, Node* n = nullptr) {
+        data = d;    // set data
+        next = n;    // set next pointer
+    }
+
+    // Setter for data
+    void setData(T val) {
+        data = val;
+    }
+
+    // Setter for next pointer
+    void setNext(Node* n) {
+        next = n;
+    }
+
+    // Getter for data
+    T retreive() const {
+        return data;
+    }
+
+    // Getter for next pointer
+    Node* getNext() const {
+        return next;
+    }
+};
+
+template <class T>
+class CircularSinglyList {
+private:
+    Node<T>* head;   // pointer to first node
+    Node<T>* tail;   // pointer to last node
+
+public:
+    CircularSinglyList() {
+        head = nullptr;  // initially empty
+        tail = nullptr;
+    }
+
+    ~CircularSinglyList() {
+        while (!empty()) {
+            pop_front();
+        }
+    }
+    bool empty() const {
+        return head == nullptr;
+    }
+
+    // Return first element
+    T front() const {
+        if (empty()) {
+            cout << "List is empty.\n";
+        }
+        else {
+            return head->retreive();
+        }
+        return 0;
+    }
+
+    // Return last element
+    T end() const {
+        if (empty()) {
+            cout << "List is empty.\n";
+        }
+        else {
+            return tail->retreive();
+        }
+        return 0;
+    }
+
+    // Get size of list
+    int size() const {
+        if (empty()) return 0;
+
+        int count = 0;
+        Node<T>* p = head;
+
+        while (true) {
+            count++;
+            p = p->getNext();
+            if (p == head) break;
+        }
+        return count;
+    }
+
+    // Count occurrences of value
+    int countValue(T val) const {
+        if (empty()) return 0;
+
+        int c = 0;
+        Node<T>* p = head;
+
+        while (true) {
+            if (p->retreive() == val) c++;
+            p = p->getNext();
+            if (p == head) break;
+        }
+        return c;
+    }
+
+    // Display
+    void display() const {
+        if (empty()) {
+            cout << "List is empty.\n";
+            return;
+        }
+        cout << "List elements: ";
+        Node<T>* p = head;
+
+        while (true) {
+            cout << p->retreive() << " ";
+            p = p->getNext();
+            if (p == head) break;
+        }
+        cout << endl;
+    }
+
+    // Insert at front
+    void push_front(T val) {
+        Node<T>* newNode = new Node<T>(val);
+
+        if (empty()) {
+            head = newNode;
+            tail = newNode;
+            newNode->setNext(head); // circular link
+        }
+        else {
+            newNode->setNext(head); // new node next = old head
+            head = newNode;         // update head
+            tail->setNext(head);    // tail connects to new head
+        }
+    }
+
+    // Insert at end
+    void push_back(T val) {
+        Node<T>* newNode = new Node<T>(val);
+
+        if (empty()) {
+            head = newNode;
+            tail = newNode;
+            newNode->setNext(head); // circular
+        }
+        else {
+            tail->setNext(newNode); // old tail next = new node
+            tail = newNode;         // update tail
+            tail->setNext(head);    // circular
+        }
+    }
+
+    // Delete first node
+    void pop_front() {
+        if (empty()) {
+            cout << "List is empty.\n";
+            return;
+        }
+
+        Node<T>* temp = head;
+
+        if (head == tail) { // single node
+            head = nullptr;
+            tail = nullptr;
+        }
+        else {
+            head = head->getNext();  // move head
+            tail->setNext(head);     // tail next = new head
+        }
+        delete temp;
+    }
+
+    // Delete last node
+    void pop_back() {
+        if (empty()) {
+            cout << "List is empty.\n";
+            return;
+        }
+
+        Node<T>* temp = tail;
+
+        if (head == tail) { // only one element
+            head = nullptr;
+            tail = nullptr;
+        }
+        else {
+            Node<T>* p = head;
+
+            while (p->getNext() != tail) {
+                p = p->getNext();      // find previous of tail
+            }
+
+            tail = p;                // update tail
+            tail->setNext(head);     // circular link
+        }
+        delete temp;
+    }
+
+    // Insert at specific position
+    void insertion(int pos, T val) {
+        int length = size();  // total nodes
+
+        if (pos < 0 || pos > length) {
+            cout << "Invalid position.\n";
+            return;
+        }
+        if (pos == 0) {        // front
+            push_front(val);
+            return;
+        }
+        if (pos == length) {   // end
+            push_back(val);
+            return;
+        }
+
+        Node<T>* prev = head;
+        for (int i = 0; i < pos - 1; i++) {
+            prev = prev->getNext();
+        }
+
+        Node<T>* nextNode = prev->getNext();     // current node at pos
+        Node<T>* newNode = new Node<T>(val, nextNode); // new between prev & next
+
+        prev->setNext(newNode);               // link prev → new
+    }
+
+    // Delete node at specific index
+    void erase(int pos) {
+        int length = size();  // total nodes
+
+        if (pos < 0 || pos >= length) {
+            cout << "Invalid position.\n";
+            return;
+        }
+        if (pos == 0) {        // front
+            pop_front();
+            return;
+        }
+        if (pos == length - 1) {  // last
+            pop_back();
+            return;
+        }
+
+        Node<T>* prev = head;
+        for (int i = 0; i < pos - 1; i++) {
+            prev = prev->getNext();
+        }
+
+        Node<T>* delNode = prev->getNext();   // node to delete
+        Node<T>* nextNode = delNode->getNext(); // node after it
+
+        prev->setNext(nextNode);           // skip deleted node
+        delete delNode;                 
+    }
+};
+
+int main() {
+    CircularSinglyList<int> li;
+
+    li.push_front(10);
+    li.push_front(20);
+    li.push_back(30);
+    li.push_back(40);
+    li.push_back(50);
+
+    li.display();
+    cout << "Head element: " << li.front() << endl;
+    cout << "Tail element: " << li.end() << endl;
+
+    li.pop_front();
+    li.display();
+
+    li.pop_back();
+    li.display();
+
+    li.insertion(1, 60);
+    li.display();
+
+    li.erase(0);
+    li.display();
+
+    return 0;
+}
