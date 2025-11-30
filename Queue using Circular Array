@@ -1,0 +1,98 @@
+#include <iostream>
+using namespace std;
+
+class Queue {
+private:
+    int* arr;       
+    int cap;      
+    int size;        
+    int front_index; 
+    int back_index; 
+
+public:
+    Queue(int n) {
+        if (n < 1) n = 1;  // minimum size
+        cap = n;
+        arr = new int[cap];
+        size = 0;
+        front_index = 0;
+        back_index = -1;
+    }
+
+    ~Queue() {
+        delete[] arr;
+    }
+
+    // ---------- Accessors ----------
+    bool empty() const {
+        return size == 0;       // true if queue has no elements
+    }
+
+    int front() const {
+        if (empty()) {
+            cout << "Queue is empty.\n";
+            return 0;
+        }
+        return arr[front_index];   // return front element
+    }
+
+    // ---------- Mutators ----------
+    void push(int val) {
+        // resize if queue is full
+        if (size == cap) {
+            int* temp = new int[cap * 2];
+
+            int j = 0;
+            for (int i = front_index; i < cap; i++) {  // copy elements from front to end
+                temp[j] = arr[i];
+                j++;
+            }
+            for (int i = 0; i < front_index; i++) {   // copy remaining elements
+                temp[j] = arr[i];
+                j++;
+            }
+
+            delete[] arr;         // delete old array
+            arr = temp;           // point to new array
+            front_index = 0;
+            back_index = size - 1;
+            cap = cap * 2;
+            cout << "Queue capacity doubled to " << cap << endl;
+        }
+
+        back_index++;
+        if (back_index == cap) back_index = 0; 
+        arr[back_index] = val;                   // add new element at back
+        size++;                                  // increase size
+    }
+
+    int pop() {
+        if (empty()) {
+            cout << "Queue is empty.\n";
+            return 0;
+        }
+
+        int val = arr[front_index];  // get front element
+        front_index++;
+        if (front_index == cap) front_index = 0; 
+        size--;                           
+        return val;                           
+    }
+};
+
+int main() {
+    Queue q(3);
+
+    q.push(10);
+    q.push(20);
+    q.push(30);
+    cout << "Front: " << q.front() << endl;
+
+    q.push(40); 
+    cout << "Front after push 40: " << q.front() << endl;
+
+    q.pop();   
+    cout << "Front after pop: " << q.front() << endl;
+
+    return 0;
+}
