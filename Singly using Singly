@@ -1,0 +1,244 @@
+#include<iostream>
+using namespace std;
+
+// Node class template
+template <class T>
+class Node {
+private:
+    T data;        // store data
+    Node<T>* next; // next pointer
+
+public:
+    // constructor
+    Node(T d = 0, Node<T>* p = nullptr) {
+        data = d;   // set data
+        next = p;   // set next
+    }
+
+    // setters
+    void setData(T val) {
+        data = val;
+    }
+
+    void setNext(Node<T>* p) {
+        next = p;
+    }
+
+    // getters
+    T retreive() const {
+        return data;
+    }
+
+    Node<T>* getNext() const {
+        return next;
+    }
+};
+
+// List class template
+template <class T>
+class List {
+private:
+    Node<T>* head;   // first node
+    Node<T>* tail;   // last node
+
+public:
+    // constructor
+    List() {
+        head = nullptr;
+        tail = nullptr;
+    }
+
+    // destructor
+    ~List() {
+        while (!empty()) {
+            pop_front();
+        }
+    }
+
+    bool empty() const {
+        return head == nullptr;
+    }
+
+    // get first element
+    T front() const {
+        if (empty()) {
+            cout << "List is empty.";
+            return T();
+        }
+        return head->retreive(); // return data
+    }
+
+    // get last element
+    T end() const {
+        if (empty()) {
+            cout << "List is empty.";
+            return T();
+        }
+        return tail->retreive();
+    }
+
+    // count size
+    int size() const {
+        int count = 0;
+        for (Node<T>* p = head; p != nullptr; p = p->getNext()) {
+            count++; // count nodes
+        }
+        return count;
+    }
+
+    // count occurrences
+    int countValue(T val) const {
+        int c = 0;
+        for (Node<T>* p = head; p != nullptr; p = p->getNext()) {
+            if (p->retreive() == val)
+                c++;
+        }
+        return c;
+    }
+
+    // display all
+    void display() const {
+        if (empty()) {
+            cout << "List is empty.\n";
+            return;
+        }
+        cout << "List elements: ";
+        for (Node<T>* p = head; p != nullptr; p = p->getNext()) {
+            cout << p->retreive() << " ";
+        }
+        cout << endl;
+    }
+
+    // insert at front
+    void push_front(T val) {
+        Node<T>* newNode = new Node<T>(val, nullptr); // create node
+
+        if (empty()) {
+            head = newNode; // first node
+            tail = newNode;
+        }
+        else {
+            newNode->setNext(head); // connect to old head
+            head = newNode;         // update head
+        }
+    }
+
+    // insert at end
+    void push_back(T val) {
+        Node<T>* newNode = new Node<T>(val, nullptr);
+        if (empty()) {
+            head = newNode; // first node
+            tail = newNode;
+        }
+        else {
+            tail->setNext(newNode); // link last to new
+            tail = newNode;         // update tail
+        }
+    }
+
+    // delete first node
+    void pop_front() {
+        if (empty()) {
+            cout << "List is empty,\n";
+            return;
+        }
+        Node<T>* temp = head;      // store head
+        head = head->getNext();    // move head
+        delete temp;               // delete old head
+
+        if (head == nullptr)       // if list empty
+            tail = nullptr;
+    }
+
+    // delete last node
+    void pop_back() {
+        if (empty()) {
+            cout << "List is empty, cannot delete.\n";
+            return;
+        }
+        if (head == tail) { // single node
+            delete head;
+            head = nullptr;
+            tail = nullptr;
+            return;
+        }
+
+        Node<T>* prev = head;
+        while (prev->getNext() != tail) { // reach node before tail
+            prev = prev->getNext();
+        }
+
+        delete tail;         // delete last
+        tail = prev;         // update tail
+        tail->setNext(nullptr);
+    }
+
+    // insert at any index
+    void insertion(int pos, T val) {
+        int length = size();
+        if (pos < 0 || pos > length) {
+            cout << "Invalid position.\n";
+            return;
+        }
+        if (pos == 0) {
+            push_front(val);
+            return;
+        }
+        if (pos == length) {
+            push_back(val);
+            return;
+        }
+
+        Node<T>* newNode = new Node<T>(val);
+        Node<T>* prev = head;
+
+        for (int i = 0; i < pos - 1; i++)
+            prev = prev->getNext(); // stop before index
+
+        newNode->setNext(prev->getNext()); // connect new
+        prev->setNext(newNode);            // link previous
+    }
+
+    // delete any index
+    void erase(int pos) {
+        int length = size();
+        if (pos < 0 || pos >= length) {
+            cout << "Invalid position.\n";
+            return;
+        }
+        if (pos == 0) {
+            pop_front();
+            return;
+        }
+        if (pos == length - 1) {
+            pop_back();
+            return;
+        }
+
+        Node<T>* prev = head;
+        for (int i = 0; i < pos - 1; i++)
+            prev = prev->getNext();
+
+        Node<T>* delNode = prev->getNext(); // node to delete
+        prev->setNext(delNode->getNext());  // bypass node
+        delete delNode;                     // delete
+    }
+};
+int main() {
+
+    // using int list
+    List<int> li;
+    li.push_front(10);
+    li.push_front(20);
+    li.push_back(30);
+    li.display();
+
+    // using string list
+    List<string> names;
+    names.push_back("Shehla");
+    names.push_back("Zahra");
+    names.push_front("Fatima");
+    names.display();
+
+    return 0;
+}
