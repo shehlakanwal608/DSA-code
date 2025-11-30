@@ -1,7 +1,7 @@
+
 #include <iostream>
 using namespace std;
 
-// Node class as in your singly linked list
 class Node {
 private:
     int data;   // stores value
@@ -35,14 +35,12 @@ public:
     }
 };
 
-// Singly linked list class
 class List {
 private:
     Node* head;  // pointer to first node
     Node* tail;  // pointer to last node
 
 public:
-    // Constructor
     List() {
         head = nullptr; // empty list
         tail = nullptr;
@@ -76,7 +74,7 @@ public:
         return count;
     }
 
-    void display() const { // print all elements
+    void display() const {
         if (empty()) {
             cout << "List is empty.\n";
             return;
@@ -114,13 +112,12 @@ public:
 // Stack using singly linked list
 class Stack {
 private:
-    List lst; // underlying singly linked list
+    List lst; 
 
 public:
     // Constructor
     Stack() {}
 
-    // Check if stack is empty
     bool empty() const {
         return lst.empty(); // reuse list empty function
     }
@@ -139,13 +136,13 @@ public:
         lst.pop_front(); // remove front element
     }
 
-    // Return top element of stack
+    // top element
     int top() const {
         if (empty()) {
             cout << "Stack is empty.\n";
             return -1;
         }
-        return lst.front(); // front element is top of stack
+        return lst.front(); // top element
     }
 
     // Display stack elements
@@ -154,7 +151,6 @@ public:
     }
 };
 
-// Main function to test stack
 int main() {
     Stack st;
 
@@ -171,7 +167,8 @@ int main() {
 
     st.pop();
     st.pop();
-    st.pop(); // trying to pop empty stack
+    st.pop(); 
 
     return 0;
 }
+
