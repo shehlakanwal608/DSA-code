@@ -3,42 +3,44 @@ using namespace std;
 
 class Stack {
 private:
-    int stack_size;        //  elements currently stored
-    int array_capacity;    // current size of the array
-    int* array;            // pointer to dynamic array
+    int stack_size;       // current number of elements
+    int array_capacity;   // array size
+    int* array;           // dynamic array
 
-    // increase capacity when array becomes full
+    // double capacity when full
     void double_capacity() {
-        int* tmp_array = new int[2 * array_capacity];  // new bigger array
+        int* temp = new int[array_capacity * 2];
 
-        for (int i = 0; i < array_capacity; ++i) {
-            tmp_array[i] = array[i];   // copy old data
+        for (int i = 0; i < array_capacity; i++) {
+            temp[i] = array[i];   // copy old elements
         }
 
-        delete[] array;     // remove old array
-        array = tmp_array;  // switch to new array
+        delete[] array;
+        array = temp;
         array_capacity *= 2;
 
         cout << "Capacity doubled to " << array_capacity << endl;
     }
 
 public:
+    // constructor
     Stack(int n = 10) {
+        array_capacity = (n < 1) ? 1 : n;
         stack_size = 0;
-        array_capacity = (n < 1) ? 1 : n;   // capacity must be at least 1
-        array = new int[array_capacity];    // create array
+        array = new int[array_capacity];
     }
 
     // destructor
     ~Stack() {
-        delete[] array; 
+        delete[] array;
     }
 
+    // check empty
     bool empty() const {
         return stack_size == 0;
     }
 
-    // return top element
+    // return top value
     int top() const {
         if (empty()) {
             cout << "Stack is empty.\n";
@@ -47,25 +49,24 @@ public:
         return array[stack_size - 1];
     }
 
-    // add a new element
-    void push(int obj) {
+    // push value
+    void push(int val) {
         if (stack_size == array_capacity) {
-            double_capacity(); 
+            double_capacity();
         }
-        array[stack_size] = obj; // store element
-        stack_size++;            // increase size
+        array[stack_size++] = val;   // add element then increment
     }
 
-    // remove top element
+    // pop value
     int pop() {
         if (empty()) {
             cout << "Stack is empty.\n";
             return 0;
         }
-        stack_size--;          // reduce size
-        return array[stack_size];  // return removed element
+        return array[--stack_size];   // decrement then access
     }
 
+    // display stack
     void display() const {
         if (empty()) {
             cout << "Stack is empty.\n";
@@ -73,7 +74,7 @@ public:
         }
 
         cout << "Stack elements (top to bottom): ";
-        for (int i = stack_size - 1; i >= 0; --i) {
+        for (int i = stack_size - 1; i >= 0; i--) {
             cout << array[i] << " ";
         }
         cout << endl;
@@ -88,7 +89,7 @@ int main() {
     st.push(30);
     st.display();
 
-    st.push(40);
+    st.push(40); // doubling happens here
     st.display();
 
     cout << "Top element: " << st.top() << endl;
@@ -98,4 +99,3 @@ int main() {
 
     return 0;
 }
-
