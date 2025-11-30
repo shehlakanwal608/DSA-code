@@ -1,0 +1,263 @@
+#include <iostream>
+using namespace std;
+
+// Node class template
+template <class T>
+class Node {
+private:
+    T data;       // stores value of node
+    Node* next;   // pointer to next node
+    Node* prev;   // pointer to previous node
+
+public:
+    // Constructor with default parameters
+    Node(T d = 0, Node* n = nullptr, Node* p = nullptr) {
+        data = d;    // set data
+        next = n;    // set next pointer
+        prev = p;    // set previous pointer
+    }
+
+    // Setter for data
+    void setData(T val) {
+        data = val;
+    }
+
+    // Setter for next pointer
+    void setNext(Node* n) {
+        next = n;
+    }
+
+    // Setter for previous pointer
+    void setPrev(Node* p) {
+        prev = p;
+    }
+
+    // Getter for data
+    T retreive() const {
+        return data;
+    }
+
+    // Getter for next pointer
+    Node* getNext() const {
+        return next;
+    }
+
+    // Getter for previous pointer
+    Node* getPrev() const {
+        return prev;
+    }
+};
+
+// Doubly linked list class template
+template <class T>
+class DoublyList {
+private:
+    Node<T>* head;   // pointer to first node
+    Node<T>* tail;   // pointer to last node
+
+public:
+    // Constructor
+    DoublyList() {
+        head = nullptr;   // initially head is null
+        tail = nullptr;   // initially tail is null
+    }
+
+    // Destructor: delete all nodes
+    ~DoublyList() {
+        while (!empty()) {
+            pop_front();
+        }
+    }
+
+    // Accessors
+    bool empty() const {
+        return head == nullptr;
+    }
+
+    T front() const {
+        if (empty()) {
+            cout << "List is empty.\n";
+            return 0;
+        }
+        return head->retreive();  // use getter
+    }
+
+    T end() const {
+        if (empty()) {
+            cout << "List is empty.\n";
+            return T();
+        }
+        return tail->retreive();
+    }
+
+    // Get size of list
+    int size() const {
+        int count = 0;
+        for (Node<T>* p = head; p != nullptr; p = p->getNext()) { // traverse using getter
+            count++;
+        }
+        return count;
+    }
+
+    // Count occurrences of a value
+    int countValue(T val) const {
+        int c = 0;
+        for (Node<T>* p = head; p != nullptr; p = p->getNext()) {
+            if (p->retreive() == val) {
+                c++;
+            }
+        }
+        return c;
+    }
+
+    // Display 
+    void display() const {
+        if (empty()) {
+            cout << "List is empty.\n";
+            return;
+        }
+        cout << "List elements: ";
+        for (Node<T>* p = head; p != nullptr; p = p->getNext()) {
+            cout << p->retreive() << " ";
+        }
+        cout << endl;
+    }
+
+    // Mutators
+    void push_front(T val) {
+        Node<T>* newNode = new Node<T>(val, head, nullptr); // create new node, next=head, prev=nullptr
+        if (empty()) {  // list is empty
+            head = newNode;  // head points to new node
+            tail = newNode;  // tail points to new node
+        }
+        else {
+            head->setPrev(newNode); // old head previous points to new node
+            head = newNode;         // update head
+        }
+    }
+
+    // Insert at end
+    void push_back(T val) {
+        Node<T>* newNode = new Node<T>(val, nullptr, tail); // new node, prev=tail, next=nullptr
+        if (empty()) {
+            head = newNode;
+            tail = newNode;
+        }
+        else {
+            tail->setNext(newNode);  // old tail next points to new node
+            tail = newNode;           // update tail
+        }
+    }
+
+    // Delete first node
+    void pop_front() {
+        if (empty()) {
+            cout << "List is empty.\n";
+            return;
+        }
+        Node<T>* temp = head;         // store current head
+        head = head->getNext();       // move head to next node
+        if (head != nullptr) {
+            head->setPrev(nullptr);  // new head prev is null
+        }
+        else {
+            tail = nullptr;          // list became empty, update tail
+        }
+        delete temp;                 // delete old head
+    }
+
+    // Delete last node
+    void pop_back() {
+        if (empty()) {
+            cout << "List is empty.\n";
+            return;
+        }
+        Node<T>* temp = tail;          // store current tail
+        tail = tail->getPrev();        // move tail to previous node
+        if (tail != nullptr) {
+            tail->setNext(nullptr);   // new tail next is null
+        }
+        else {
+            head = nullptr;           // list became empty, update head
+        }
+        delete temp;                   // delete old tail
+    }
+
+    // Insert at specific position 
+    void insertion(int pos, T val) {
+        int length = size();
+        if (pos < 0 || pos > length) {
+            cout << "Invalid position.\n";
+            return;
+        }
+        if (pos == 0) {           // insert at front
+            push_front(val);
+            return;
+        }
+        if (pos == length) {      // insert at end
+            push_back(val);
+            return;
+        }
+        Node<T>* prev = head;
+        for (int i = 0; i < pos - 1; i++) {
+            prev = prev->getNext();
+        }
+        Node<T>* nextNode = prev->getNext();
+        Node<T>* newNode = new Node<T>(val, nextNode, prev); // new node linked with prev and next
+        prev->setNext(newNode);       // link prev to new node
+        nextNode->setPrev(newNode);   // link next node previous to new node
+    }
+
+    // Delete node at specific position
+    void erase(int pos) {
+        int length = size();
+        if (pos < 0 || pos >= length) {
+            cout << "Invalid position.\n";
+            return;
+        }
+        if (pos == 0) {           // delete first node
+            pop_front();
+            return;
+        }
+        if (pos == length - 1) {  // delete last node
+            pop_back();
+            return;
+        }
+        Node<T>* prev = head;
+        for (int i = 0; i < pos - 1; i++) {
+            prev = prev->getNext();
+        }
+        Node<T>* delNode = prev->getNext();        // node to delete
+        Node<T>* nextNode = delNode->getNext();    // node after delNode
+        prev->setNext(nextNode);                   // link previous node to next
+        nextNode->setPrev(prev);                   // link next node prev to previous node
+        delete delNode;                            // free memory
+    }
+};
+
+int main() {
+    DoublyList<int> li;  // now using template
+
+    li.push_front(10);
+    li.push_front(20);
+    li.push_back(30);
+    li.push_back(40);
+    li.push_back(50);
+    li.display();
+    cout << "Head element: " << li.front() << endl;
+    cout << "Tail element: " << li.end() << endl;
+
+    li.pop_front();
+    li.display();
+
+    li.pop_back();
+    li.display();
+
+    li.insertion(1, 60);
+    li.display();
+
+    li.erase(0);
+    li.display();
+
+    return 0;
+}
