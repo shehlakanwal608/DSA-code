@@ -1,17 +1,16 @@
 #include <iostream>
 using namespace std;
+
 class Node {
 private:
-    int data;       // stores value of node
-    Node* next;     // pointer to next node
-    Node* prev;     // pointer to previous node
+    int data;        // stores value of node
+    Node* next;      // pointer to next node
 
 public:
     // Constructor with default parameters
-    Node(int d = 0, Node* n = nullptr, Node* p = nullptr) {
-        data = d;   // set data
-        next = n;   // set next pointer
-        prev = p;   // set previous pointer
+    Node(int d = 0, Node* n = nullptr) {
+        data = d;    // set data
+        next = n;    // set next pointer
     }
 
     // Setter for data
@@ -24,11 +23,6 @@ public:
         next = n;
     }
 
-    // Setter for previous pointer
-    void setPrev(Node* p) {
-        prev = p;
-    }
-
     // Getter for data
     int retreive() const {
         return data;
@@ -38,74 +32,85 @@ public:
     Node* getNext() const {
         return next;
     }
-
-    // Getter for previous pointer
-    Node* getPrev() const {
-        return prev;
-    }
 };
 
-// Circular doubly linked list class
-class CircularDoublyList {
+class CircularSinglyList {
 private:
-    Node* head;  // pointer to first node
-    Node* tail;  // pointer to last node
+    Node* head;   // pointer to first node
+    Node* tail;   // pointer to last node
 
 public:
     // Constructor
-    CircularDoublyList() {
-        head = nullptr; // initially head is null
-        tail = nullptr; // initially tail is null
+    CircularSinglyList() {
+        head = nullptr;  // initially empty
+        tail = nullptr;
     }
 
     // Destructor: delete all nodes
-    ~CircularDoublyList() {
+    ~CircularSinglyList() {
         while (!empty()) {
-            pop_front(); // delete front node until list is empty
+            pop_front();
         }
     }
-    // empty
+
+    // Check if empty
     bool empty() const {
         return head == nullptr;
     }
+
+    // Return first element
     int front() const {
         if (empty()) {
             cout << "List is empty.\n";
-            return -1;
         }
-        return head->retreive(); // return data using getter
+        else {
+            return head->retreive();
+        }
+        return 0;
     }
+
+    // Return last element
     int end() const {
         if (empty()) {
             cout << "List is empty.\n";
-            return -1;
         }
-        return tail->retreive(); // return tail data
+        else {
+            return tail->retreive();
+        }
+        return 0;
     }
+
     // Get size of list
     int size() const {
-        if (empty()) return 0;      // empty list has size 0
+        if (empty()) return 0;
+
         int count = 0;
         Node* p = head;
-        do {
-            count++;                  // count current node
-            p = p->getNext();         // move to next node using getter
-        } while (p != head);          // stop when looped back to head
+
+        while (true) {
+            count++;
+            p = p->getNext();
+            if (p == head) break;
+        }
         return count;
     }
-    // Count
+
+    // Count occurrences of value
     int countValue(int val) const {
         if (empty()) return 0;
+
         int c = 0;
         Node* p = head;
-        do {
-            if (p->retreive() == val) { // compare data
-                c++;
-            }
-            p = p->getNext(); // move to next node
-        } while (p != head);  // until looped back to head
+
+        while (true) {
+            if (p->retreive() == val) c++;
+            p = p->getNext();
+            if (p == head) break;
+        }
         return c;
     }
+
+    // Display list
     void display() const {
         if (empty()) {
             cout << "List is empty.\n";
@@ -113,152 +118,168 @@ public:
         }
         cout << "List elements: ";
         Node* p = head;
-        do {
-            cout << p->retreive() << " "; // print data using getter
-            p = p->getNext();             // move to next node
-        } while (p != head);               // stop when back to head
+
+        while (true) {
+            cout << p->retreive() << " ";
+            p = p->getNext();
+            if (p == head) break;
+        }
         cout << endl;
     }
+
     // Insert at front
     void push_front(int val) {
-        Node* newNode = new Node(val);    // create new node
-        if (empty()) {  
-            head = newNode; // head points to new node
-            tail = newNode; // tail points to new node
-            newNode->setNext(head); // next points to itself
-            newNode->setPrev(tail); // prev points to itself
-        }
-        else {                      
-            newNode->setNext(head);// new node points to old head
-            newNode->setPrev(tail);// new node prev points to tail
-            head->setPrev(newNode);// old head prev points to new node
-            tail->setNext(newNode);// tail next points to new node
-            head = newNode;// update head to new node
-        }
-    }
-    // Insert at end
-    void push_back(int val) {
-        Node* newNode = new Node(val);// create new node
+        Node* newNode = new Node(val);
+
         if (empty()) {
             head = newNode;
             tail = newNode;
-            newNode->setNext(head); // next points to itself
-            newNode->setPrev(tail); // prev points to itself
+            newNode->setNext(head); // circular link
         }
         else {
-            newNode->setPrev(tail);// new node prev points to old tail
-            newNode->setNext(head);// new node next points to head
-            tail->setNext(newNode);// old tail next points to new node
-            head->setPrev(newNode);// head prev points to new node
-            tail = newNode;// update tail
+            newNode->setNext(head); // new node next = old head
+            head = newNode;         // update head
+            tail->setNext(head);    // tail connects to new head
         }
     }
+
+    // Insert at end
+    void push_back(int val) {
+        Node* newNode = new Node(val);
+
+        if (empty()) {
+            head = newNode;
+            tail = newNode;
+            newNode->setNext(head); // circular
+        }
+        else {
+            tail->setNext(newNode); // old tail next = new node
+            tail = newNode;         // update tail
+            tail->setNext(head);    // circular
+        }
+    }
+
+    // Delete first node
     void pop_front() {
-        if (empty()) {// list empty
+        if (empty()) {
             cout << "List is empty.\n";
             return;
         }
-        Node* temp = head;// store old head
-        if (head == tail) {// only one node
+
+        Node* temp = head;
+
+        if (head == tail) { // single node
             head = nullptr;
             tail = nullptr;
         }
         else {
-            head = head->getNext();// update head to next node
-            head->setPrev(tail);// new head prev points to tail
-            tail->setNext(head);// tail next points to new head
+            head = head->getNext();  // move head
+            tail->setNext(head);     // tail next = new head
         }
-        delete temp;// free memory of old head
+        delete temp;
     }
 
     // Delete last node
     void pop_back() {
-        if (empty()) {                      
+        if (empty()) {
             cout << "List is empty.\n";
             return;
         }
-        Node* temp = tail;// store old tail
-        if (head == tail) {
+
+        Node* temp = tail;
+
+        if (head == tail) { // only one element
             head = nullptr;
             tail = nullptr;
         }
         else {
-            tail = tail->getPrev();// update tail to previous node
-            tail->setNext(head);// tail next points to head
-            head->setPrev(tail);// head prev points to tail
+            Node* p = head;
+
+            while (p->getNext() != tail) {
+                p = p->getNext();      // find previous of tail
+            }
+
+            tail = p;                // update tail
+            tail->setNext(head);     // circular link
         }
-        delete temp; // delete old tail
+        delete temp;
     }
 
     // Insert at specific position
     void insertion(int pos, int val) {
-        int length = size();// get total nodes
+        int length = size();  // total nodes
+
         if (pos < 0 || pos > length) {
             cout << "Invalid position.\n";
             return;
         }
-        if (pos == 0) {// insert at front
+        if (pos == 0) {        // front
             push_front(val);
             return;
         }
-        if (pos == length) {// insert at end
+        if (pos == length) {   // end
             push_back(val);
             return;
         }
-        Node* prev = head;
+
+        Node* prev = head; 
         for (int i = 0; i < pos - 1; i++) {
-            prev = prev->getNext();// move to node before position
+            prev = prev->getNext();
         }
-        Node* nextNode = prev->getNext();// node currently at position
-        Node* newNode = new Node(val, nextNode, prev); // set next and prev
-        prev->setNext(newNode); // previous node points to new node
-        nextNode->setPrev(newNode); // next node prev points to new node
+
+        Node* nextNode = prev->getNext();     // current node at pos
+        Node* newNode = new Node(val, nextNode); // new between prev & next
+
+        prev->setNext(newNode);               // link prev → new
     }
 
-    // Delete node at specific position
+    // Delete node at specific index
     void erase(int pos) {
-        int length = size();// total nodes
+        int length = size();  // total nodes
+
         if (pos < 0 || pos >= length) {
             cout << "Invalid position.\n";
             return;
         }
-        if (pos == 0) {
+        if (pos == 0) {        // front
             pop_front();
             return;
         }
-        if (pos == length - 1) {
+        if (pos == length - 1) {  // last
             pop_back();
             return;
         }
-        Node* prev = head; // start from head
+
+        Node* prev = head;    
         for (int i = 0; i < pos - 1; i++) {
-            prev = prev->getNext();          // move to node before target
+            prev = prev->getNext();
         }
-        Node* delNode = prev->getNext();      // node to delete
-        Node* nextNode = delNode->getNext();  // node after delNode
-        prev->setNext(nextNode);              // link previous to next
-        nextNode->setPrev(prev);              // link next back to previous
-        delete delNode;                        // free memory
+
+        Node* delNode = prev->getNext();   // node to delete
+        Node* nextNode = delNode->getNext(); // node after it
+
+        prev->setNext(nextNode);           // skip deleted node
+        delete delNode;                    // free memory
     }
+
 };
 
 // Main function
 int main() {
-    CircularDoublyList li;
+    CircularSinglyList li;
 
     li.push_front(10);
     li.push_front(20);
     li.push_back(30);
     li.push_back(40);
     li.push_back(50);
+
     li.display();
     cout << "Head element: " << li.front() << endl;
     cout << "Tail element: " << li.end() << endl;
 
     li.pop_front();
     li.display();
-    cout << "Head element: " << li.front() << endl;
-    cout << "Tail element: " << li.end() << endl;
 
     li.pop_back();
     li.display();
