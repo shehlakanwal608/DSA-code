@@ -3,70 +3,67 @@ using namespace std;
 
 class Stack {
 private:
-    int stack_size; // number of elements currently in stack
-    int array_capacity;  // capacity of the array
-    int* array;          // pointer to dynamic array
+    int stack_size;        //  elements currently stored
+    int array_capacity;    // current size of the array
+    int* array;            // pointer to dynamic array
 
-    //function to double the capacity
+    // increase capacity when array becomes full
     void double_capacity() {
-        int* tmp_array = new int[2 * array_capacity]; // allocate new array with double capacity
+        int* tmp_array = new int[2 * array_capacity];  // new bigger array
+
         for (int i = 0; i < array_capacity; ++i) {
-            tmp_array[i] = array[i];                 // copy old values
+            tmp_array[i] = array[i];   // copy old data
         }
-        delete[] array; // delete old array
-        array = tmp_array;// point array to new memory
-        array_capacity *= 2;                // update capacity
-        cout << "Stack capacity doubled to " << array_capacity << endl;
+
+        delete[] array;     // remove old array
+        array = tmp_array;  // switch to new array
+        array_capacity *= 2;
+
+        cout << "Capacity doubled to " << array_capacity << endl;
     }
 
 public:
-    // Constructor
     Stack(int n = 10) {
         stack_size = 0;
-       // ensure capacity is at least 1
-        if (n < 1) {
-            array_capacity = 1;
-        }
-        else {
-            array_capacity = n;
-        }
-
-        array_capacity = n;
-        array = new int[array_capacity]; // allocate memory for array
+        array_capacity = (n < 1) ? 1 : n;   // capacity must be at least 1
+        array = new int[array_capacity];    // create array
     }
 
-    // Destructor
+    // destructor
     ~Stack() {
-        delete[] array;// free memory
+        delete[] array; 
     }
+
     bool empty() const {
-        return stack_size == 0;// stack is empty if size is 0
+        return stack_size == 0;
     }
 
-    //top element
+    // return top element
     int top() const {
-        if (empty()) {// if stack is empty
-            cout << "Stack Underflow! Stack is empty.\n";
-            return -1;                              
+        if (empty()) {
+            cout << "Stack is empty.\n";
+            return 0;
         }
-        return array[stack_size - 1];// last element is top
-    }
-    // Push element onto stack
-    void push(int obj) {
-        if (stack_size == array_capacity) { // if array is full
-            double_capacity();// double the capacity
-        }
-        array[stack_size] = obj;// add element at top
-        stack_size++; // increase stack size
+        return array[stack_size - 1];
     }
 
-    int pop() {
-        if (empty()) { // if stack is empty
-            cout << "Stack Underflow! Cannot pop.\n";
-            return -1;
+    // add a new element
+    void push(int obj) {
+        if (stack_size == array_capacity) {
+            double_capacity(); 
         }
-        stack_size--;  // reduce stack size
-        return array[stack_size];// return the popped element
+        array[stack_size] = obj; // store element
+        stack_size++;            // increase size
+    }
+
+    // remove top element
+    int pop() {
+        if (empty()) {
+            cout << "Stack is empty.\n";
+            return 0;
+        }
+        stack_size--;          // reduce size
+        return array[stack_size];  // return removed element
     }
 
     void display() const {
@@ -74,6 +71,7 @@ public:
             cout << "Stack is empty.\n";
             return;
         }
+
         cout << "Stack elements (top to bottom): ";
         for (int i = stack_size - 1; i >= 0; --i) {
             cout << array[i] << " ";
@@ -83,14 +81,14 @@ public:
 };
 
 int main() {
-    Stack st(3); // create stack with capacity 3
+    Stack st(3);
 
     st.push(10);
     st.push(20);
     st.push(30);
     st.display();
 
-    st.push(40); // triggers capacity doubling
+    st.push(40);
     st.display();
 
     cout << "Top element: " << st.top() << endl;
@@ -100,3 +98,4 @@ int main() {
 
     return 0;
 }
+
