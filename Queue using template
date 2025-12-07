@@ -1,0 +1,141 @@
+#include <iostream>
+using namespace std;
+
+// Node class
+template <typename T>
+class Node {
+private:
+    T data;            // store value
+    Node<T>* next;     // pointer to next node
+
+public:
+    // constructor with default parameters
+    Node(T d = T(), Node<T>* n = nullptr) {
+        data = d;      // store value
+        next = n;      // next pointer
+    }
+
+    void setData(T val) { 
+        data = val;    // set data 
+    }
+
+    void setNext(Node<T>* n) { 
+        next = n;      // set next pointer 
+    }
+
+    T retrieve() const { 
+        return data;   // return stored value
+    }
+
+    Node<T>* getNext() const { 
+        return next;   // return next node
+    }
+};
+
+// List class
+template <typename T>
+class List {
+private:
+    Node<T>* head;     // front of list
+    Node<T>* tail;     // last element of list
+
+public:
+    List() { 
+        head = tail = nullptr;   // initialize empty list
+    }
+
+    // destructor
+    ~List() {
+        while (!empty()) pop_front();   // delete all nodes
+    }
+
+    bool empty() const {
+        return head == nullptr;   // list empty or not
+    }
+
+    // insert at end
+    void push_back(T val) {
+        Node<T>* newNode = new Node<T>(val);   // create new node
+
+        if (empty()) {
+            head = tail = newNode;             // first node
+        }
+        else {
+            tail->setNext(newNode);            // attach at end
+            tail = newNode;                    // update tail
+        }
+    }
+
+    // delete front node
+    T pop_front() {
+        if (empty()) {
+            cout << "Queue is empty.\n";
+            return T();       // return default value
+        }
+
+        Node<T>* temp = head;               // temp points to front
+        T val = head->retrieve();           // get data
+        head = head->getNext();             // move head forward
+        delete temp;                        // delete old head
+
+        if (head == nullptr)                // if list now empty
+            tail = nullptr;
+
+        return val;                         // return deleted value
+    }
+
+    // return front value
+    T front() const {
+        if (empty()) {
+            cout << "Queue is empty.\n";
+            return T();
+        }
+        return head->retrieve();            // value at head
+    }
+
+    // return pointer to head (for tree children traversal)
+    Node<T>* getHead() const { 
+        return head; 
+    }
+};
+// Queue class using List
+template <typename T>
+class Queue {
+private:
+    List<T> l;     // list used for queue operations
+
+public:
+    bool empty() const { 
+        return l.empty();     // queue empty or not
+    }
+
+    void push(T val) { 
+        l.push_back(val);     // insert at rear
+    }
+
+    T pop() { 
+        return l.pop_front(); // delete from front
+    }
+
+    T top() const { 
+        return l.front();     // front value
+    }
+};
+int main() {
+    Queue<int> q;   // Queue of integers
+
+    q.push(10);
+    q.push(20);
+    q.push(30);
+
+    cout << "Front element: " << q.top() << endl;
+
+    q.pop();
+    cout << "Front after pop: " << q.top() << endl;
+
+    q.push(40);
+    cout << "Front after push 40: " << q.top() << endl;
+
+    return 0;
+}
+
