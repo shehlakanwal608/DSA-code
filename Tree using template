@@ -1,0 +1,318 @@
+#include <iostream> 
+#include <algorithm>
+
+using namespace std;
+
+// Forward declaration for Simple_tree so List can use it
+template <typename Type>
+class Simple_tree;
+
+//  Node Class
+template <typename Type>
+class Node {
+private:
+    Type data; // stores the value of the node 
+    Node<Type>* next; // pointer to the next node 
+public:
+    // Constructor with default parameters 
+    Node(Type d = 0, Node<Type>* p = nullptr) {
+        data = d; // store value in node 
+        next = p; // assign next pointer 
+    }
+    // Setter for node value
+    void setData(Type val) {
+        data = val; // update node value
+    }
+
+    // Setter for next node pointer
+    void setNext(Node<Type>* p) {
+        next = p; // update pointer to next node
+    }
+
+    // Getter for node value
+    Type retreive() const {
+        return data; // return node value
+    }
+
+    // Getter for next node pointer
+    Node<Type>* getNext() const {
+        return next; // return pointer to next node
+    }
+};
+
+//Singly Linked List Class 
+template <typename Type>
+class List {
+private:
+    Node<Type>* head; // pointer to first node 
+    Node<Type>* tail; // pointer to last node 
+public:
+    // Constructor initializes empty list 
+    List() {
+        head = nullptr; // initially no head 
+        tail = nullptr; // initially no tail 
+    }
+    // Destructor deletes all nodes
+    ~List() {
+        while (!empty()) { // remove nodes until empty
+            pop_front(); // delete first node
+        }
+    }
+
+    // Check if list is empty
+    bool empty() const {
+        return head == nullptr; // true if no head
+    }
+
+    // Return first element
+    Type front() const {
+        if (empty()) { // if list empty
+            cout << "List is empty.\n";
+            return Type(); // return default value
+        }
+        return head->retreive(); // return head node value
+    }
+
+    // Return last element
+    Type end() const {
+        if (empty()) { // if list empty
+            cout << "List is empty.\n";
+            return Type(); // return default value
+        }
+        return tail->retreive(); // return tail node value
+    }
+
+    // Count number of nodes in the list
+    int size() const {
+        int count = 0; // initialize counter
+        for (Node<Type>* p = head; p != nullptr; p = p->getNext()) {
+            count++; // increment for each node
+        }
+        return count; // return total count
+    }
+
+    // Add a node at the end
+    void push_back(Type val) {
+        Node<Type>* newNode = new Node<Type>(val, nullptr); // create new node
+        if (empty()) { // if list is empty
+            head = tail = newNode; // first node is both head and tail
+        }
+        else {
+            tail->setNext(newNode); // link last node to new
+            tail = newNode; // update tail pointer
+        }
+    }
+
+    // Remove the first node
+    void pop_front() {
+        if (empty()) return; // nothing to remove
+        Node<Type>* temp = head; // store old head
+        head = head->getNext(); // move head to next node
+        delete temp; // delete old head
+        if (head == nullptr) tail = nullptr; // update tail if list becomes empty
+    }
+
+    // Erase first occurrence of a value
+    void erase(Type val) {
+        if (empty()) return; // nothing to erase
+        Node<Type>* prev = nullptr; // previous node pointer
+        Node<Type>* curr = head; // current node pointer
+        while (curr) { // traverse list
+            if (curr->retreive() == val) { // if value matches
+                if (prev) prev->setNext(curr->getNext()); // bypass node
+                else head = curr->getNext(); // deleting head
+                if (curr == tail) tail = prev; // update tail if needed
+                delete curr; // free memory
+                return; // only first occurrence
+            }
+            prev = curr; // move previous pointer
+            curr = curr->getNext(); // move current pointer
+        }
+    }
+
+    // Return head node pointer (used in tree)
+    Node<Type>* headNode() const {
+        return head; // return pointer to first node
+    }
+};
+
+//Simple Tree Class
+template <typename Type>
+class Simple_tree {
+private:
+    Type element; // data stored in this tree node 
+    Simple_tree* parent_node; // pointer to parent node 
+    List<Simple_tree*> children; // list of child nodes 
+public:
+    // Constructor
+    Simple_tree(Type const& obj = Type(), Simple_tree* p = nullptr);
+
+    // Accessors
+    Type retrieve() const;
+    Simple_tree* parent() const;
+    Simple_tree* child(int n) const;
+    int degree() const;
+
+    // Predicates
+    bool is_root() const;
+    bool is_leaf() const;
+
+    // Utility
+    int size() const;
+    int height() const;
+
+    // Mutators
+    void insert(Type const&);
+    void attach(Simple_tree*);
+    void detach();
+
+    // Traversals
+    void depth_first_traversal() const;
+    void breadth_first_traversal();
+};
+
+// Simple Tree Function 
+
+// Constructor with default parameters
+template <typename Type>
+Simple_tree<Type>::Simple_tree(Type const& obj, Simple_tree* p) : element(obj), parent_node(p) {}
+
+// Retrieve data stored in node
+template <typename Type>
+Type Simple_tree<Type>::retrieve() const {
+    return element;
+}
+
+// Return parent node
+template <typename Type>
+Simple_tree<Type>* Simple_tree<Type>::parent() const {
+    return parent_node;
+}
+
+// Check if node is root
+template <typename Type>
+bool Simple_tree<Type>::is_root() const {
+    return parent_node == nullptr;
+}
+
+// Return child at index n (0-based indexing used in user's logic)
+template <typename Type>
+Simple_tree<Type>* Simple_tree<Type>::child(int n) const {
+    if (n < 0 || n >= children.size()) return nullptr; // invalid index
+    Node<Simple_tree*>* ptr = children.headNode(); // start from first child
+    for (int i = 0; i < n; ++i) ptr = ptr->getNext(); // traverse to nth child
+    return ptr->retreive(); // return child
+}
+
+// Return number of children
+template <typename Type>
+int Simple_tree<Type>::degree() const {
+    return children.size(); // return count of children
+}
+
+// Check if node is leaf
+template <typename Type>
+bool Simple_tree<Type>::is_leaf() const {
+    return degree() == 0; // leaf has no children
+}
+
+// Compute height of tree from this node
+template <typename Type>
+int Simple_tree<Type>::height() const {
+    int h = 0; // initialize height
+    for (Node<Simple_tree*>* ptr = children.headNode(); ptr != nullptr; ptr = ptr->getNext()) {
+        // Find max height of children and add 1
+        h = max(h, 1 + ptr->retreive()->height());
+    }
+    return h; // return height
+}
+
+// Insert a new child node with given value
+template <typename Type>
+void Simple_tree<Type>::insert(Type const& obj) {
+    children.push_back(new Simple_tree(obj, this)); // create and add child
+    // //cout<< children.back()->retrieve(); (Commented out as in your provided code)
+}
+
+// Attach an existing subtree
+template <typename Type>
+void Simple_tree<Type>::attach(Simple_tree<Type>* tree) {
+    if (!tree->is_root()) tree->detach(); // remove from current parent
+    tree->parent_node = this; // set new parent
+    children.push_back(tree); // add to children
+}
+
+// Detach this node from its parent
+template <typename Type>
+void Simple_tree<Type>::detach() {
+    if (is_root()) return; // root has no parent
+    // The manual's detach function logic
+    parent()->children.erase(this);
+    parent_node = nullptr; // clear parent
+}
+
+// Size of subtree rooted at this node
+template <typename Type>
+int Simple_tree<Type>::size() const {
+    int s = 1; // count self
+    for (Node<Simple_tree*>* ptr = children.headNode(); ptr != nullptr; ptr = ptr->getNext()) {
+        s += ptr->retreive()->size(); // add sizes of all subtrees
+    }
+    return s; // return total size
+}
+
+// Depth-first traversal (Pre-order)
+template <typename Type>
+void Simple_tree<Type>::depth_first_traversal() const {
+    cout << retrieve() << "\t"; // visit node
+    for (Node<Simple_tree*>* ptr = children.headNode(); ptr != nullptr; ptr = ptr->getNext()) {
+        ptr->retreive()->depth_first_traversal(); // visit children recursively
+    }
+}
+
+// Breadth-first traversal using List as a queue (using your provided implementation logic)
+template <typename Type>
+void Simple_tree<Type>::breadth_first_traversal() {
+    List<Simple_tree*> queue; // simple queue
+    queue.push_back(this); // start with root
+
+    // Loop until the queue is empty
+    while (!queue.empty()) {
+        Simple_tree* node = queue.front(); // get first node
+        queue.pop_front(); // remove first node
+
+        cout << node->retrieve() << "\t"; // visit node
+
+        // enqueue all children
+        for (Node<Simple_tree*>* ptr = node->children.headNode(); ptr != nullptr; ptr = ptr->getNext()) {
+            queue.push_back(ptr->retreive());
+        }
+    }
+}
+
+int main() {
+    Simple_tree<int> root(1); // create root node
+
+    // Insert children 2, 3, 4 under root
+    root.insert(2);
+    root.insert(3);
+    root.insert(4);
+
+    // Insert grandchildren
+    root.child(0)->insert(5); // Child 5 under 2 (index 0)
+    root.child(0)->insert(6); // Child 6 under 2 (index 0)
+    root.child(2)->insert(7); // Child 7 under 4 (index 2)
+
+    cout << "Depth-First Traversal:\n";
+    root.depth_first_traversal(); // perform DFS traversal: 1 2 5 6 3 4 7 
+    cout << "\n\n";
+
+    cout << "Breadth-First Traversal:\n";
+    root.breadth_first_traversal(); // perform BFS traversal: 1 2 3 4 5 6 7
+    cout << "\n";
+
+    cout << "Tree size: " << root.size() << "\n"; //  size of tree
+    cout << "Tree height: " << root.height() << "\n"; // height of tree
+
+    return 0; 
+}
