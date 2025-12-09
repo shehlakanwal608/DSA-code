@@ -157,7 +157,6 @@ public:
     bool is_root() const;
     bool is_leaf() const;
 
-    // Utility
     int size() const;
     int height() const;
 
@@ -300,7 +299,7 @@ int main() {
 
     // Insert grandchildren
     root.child(0)->insert(5); // Child 5 under 2 (index 0)
-    root.child(0)->insert(6); // Child 6 under 2 (index 0)
+    root.child(0)->insert(6); 
     root.child(2)->insert(7); // Child 7 under 4 (index 2)
 
     cout << "Depth-First Traversal:\n";
