@@ -1,0 +1,137 @@
+#include <iostream>
+using namespace std;
+   //Node class 
+template <typename T>
+class Node {
+public:
+    T data;            // Data stored in the node
+    Node* left;        // Pointer to left child
+    Node* right;       // Pointer to right child
+
+    Node(T value) {
+        data = value;
+        left = NULL;
+        right = NULL;
+    }
+};
+   //BinaryTree class 
+
+template <typename T>
+class BinaryTree {
+public:
+    Node<T>* root;     // Root node of the tree
+    BinaryTree() {
+        root = NULL;
+    }
+
+    // Check if tree is empty
+    bool isEmpty() {
+        return (root == NULL);   // Tree is empty if root is NULL
+    }
+
+    // Insert root node
+    void insertRoot(T value) {
+        if (root == NULL)
+            root = new Node<T>(value);   // Create root if tree is empty
+        else
+            cout << "Root already exists\n";
+    }
+
+    // Insert left child of a given parent
+    void insertLeft(Node<T>* parent, T value) {
+        if (parent->left == NULL)
+            parent->left = new Node<T>(value);  // Create left child
+        else
+            cout << "Left child already exists\n";
+    }
+
+    // Insert right child of a given parent
+    void insertRight(Node<T>* parent, T value) {
+        if (parent->right == NULL)
+            parent->right = new Node<T>(value); // Create right child
+        else
+            cout << "Right child already exists\n";
+    }
+
+    // Inorder traversal: Left -> Root -> Right
+    void inorder(Node<T>* node) {
+        if (node != NULL) {
+            inorder(node->left);          // Visit left subtree
+            cout << node->data << " ";    // Print root data
+            inorder(node->right);         // Visit right subtree
+        }
+    }
+
+    // Preorder traversal: Root -> Left -> Right
+    void preorder(Node<T>* node) {
+        if (node != NULL) {
+            cout << node->data << " ";    // Print root data
+            preorder(node->left);         // Visit left subtree
+            preorder(node->right);        // Visit right subtree
+        }
+    }
+
+    // Postorder traversal: Left -> Right -> Root
+    void postorder(Node<T>* node) {
+        if (node != NULL) {
+            postorder(node->left);        // Visit left subtree
+            postorder(node->right);       // Visit right subtree
+            cout << node->data << " ";    // Print root data
+        }
+    }
+
+    // Count total nodes in the tree
+    int countNodes(Node<T>* node) {
+        if (node == NULL)
+            return 0;  // No node, count is 0
+
+        // Count current node + left subtree + right subtree
+        return 1 + countNodes(node->left) + countNodes(node->right);
+    }
+
+    // Find height of the tree
+    int height(Node<T>* node) {
+        if (node == NULL)
+            return 0;  // Height of empty tree is 0
+
+        // Calculate height of left and right subtrees
+        int leftHeight = height(node->left);
+        int rightHeight = height(node->right);
+
+        // Return maximum height + 1 for current node
+        return 1 + max(leftHeight, rightHeight);
+    }
+};
+
+int main() {
+    BinaryTree<int> tree; 
+
+    // Check if tree is empty
+    if (tree.isEmpty())
+        cout << "Tree is empty\n";
+
+    // Insert root and child nodes
+    tree.insertRoot(1);                 // Root node
+    tree.insertLeft(tree.root, 2);      // Left child of root
+    tree.insertRight(tree.root, 3);     // Right child of root
+    tree.insertLeft(tree.root->left, 4); // Left child of node 2
+    tree.insertRight(tree.root->left, 5); // Right child of node 2
+
+    // Display traversals
+    cout << "\nInorder Traversal: ";
+    tree.inorder(tree.root);
+
+    cout << "\nPreorder Traversal: ";
+    tree.preorder(tree.root);
+
+    cout << "\nPostorder Traversal: ";
+    tree.postorder(tree.root);
+
+    // Display total nodes
+    cout << "\n\nTotal Nodes: " << tree.countNodes(tree.root);
+
+    // Display height of the tree
+    cout << "\nHeight of Tree: " << tree.height(tree.root);
+
+    return 0;
+}
