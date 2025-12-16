@@ -14,7 +14,6 @@ private:
     Type data; // stores the value of the node 
     Node<Type>* next; // pointer to the next node 
 public:
-    // Constructor with default parameters 
     Node(Type d = 0, Node<Type>* p = nullptr) {
         data = d; // store value in node 
         next = p; // assign next pointer 
@@ -171,8 +170,6 @@ public:
 };
 
 // Simple Tree Function 
-
-// Constructor with default parameters
 template <typename Type>
 Simple_tree<Type>::Simple_tree(Type const& obj, Simple_tree* p) : element(obj), parent_node(p) {}
 
@@ -230,7 +227,7 @@ int Simple_tree<Type>::height() const {
 template <typename Type>
 void Simple_tree<Type>::insert(Type const& obj) {
     children.push_back(new Simple_tree(obj, this)); // create and add child
-    // //cout<< children.back()->retrieve(); (Commented out as in your provided code)
+    // //cout<< children.back()->retrieve();
 }
 
 // Attach an existing subtree
@@ -269,7 +266,7 @@ void Simple_tree<Type>::depth_first_traversal() const {
     }
 }
 
-// Breadth-first traversal using List as a queue (using your provided implementation logic)
+// Breadth-first traversal using List as a queue 
 template <typename Type>
 void Simple_tree<Type>::breadth_first_traversal() {
     List<Simple_tree*> queue; // simple queue
@@ -303,11 +300,11 @@ int main() {
     root.child(2)->insert(7); // Child 7 under 4 (index 2)
 
     cout << "Depth-First Traversal:\n";
-    root.depth_first_traversal(); // perform DFS traversal: 1 2 5 6 3 4 7 
+    root.depth_first_traversal(); 
     cout << "\n\n";
 
     cout << "Breadth-First Traversal:\n";
-    root.breadth_first_traversal(); // perform BFS traversal: 1 2 3 4 5 6 7
+    root.breadth_first_traversal(); 
     cout << "\n";
 
     cout << "Tree size: " << root.size() << "\n"; //  size of tree
