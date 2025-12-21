@@ -85,7 +85,7 @@ private:
         inorder(node->rightChild); // visit right subtree
     }
 
-    // Preorder traversal helper
+    // Preorder traversal 
     void preorder(BinaryNode<T>* node) {
         if (!node) return;  // base case
         cout << node->retrieve() << " "; // visit root
@@ -93,7 +93,7 @@ private:
         preorder(node->rightChild);// visit right subtree
     }
 
-    // Postorder traversal helper
+    // Postorder traversal 
     void postorder(BinaryNode<T>* node) {
         if (!node) return;  // base case
         postorder(node->leftChild); // visit left subtree
