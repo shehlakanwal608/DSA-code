@@ -1,0 +1,256 @@
+#include <iostream>
+#include <queue>  // for BFS (level-order traversal)
+#include <stack>  // for DFS (depth-first using stack)
+using namespace std;
+
+// Binary Search Node
+template <class T>
+class BinarySearchNode {
+public:
+    T data;                         // node value
+    BinarySearchNode<T>* leftChild; // pointer to left child
+    BinarySearchNode<T>* rightChild;// pointer to right child
+
+    // Constructor: 
+    BinarySearchNode(const T& val) {
+        data = val;
+        leftChild = nullptr;  // initially no left child
+        rightChild = nullptr; // initially no right child
+    }
+
+    // Check if node is empty (nullptr)
+    bool empty() const {
+        return this == nullptr;
+    }
+
+    // Check if node is a leaf (no children)
+    bool isLeaf() const {
+        return (leftChild == nullptr && rightChild == nullptr);
+    }
+
+    // Retrieve node value
+    T retrieve() const {
+        return data;
+    }
+
+    // Size of subtree rooted at this node
+    int size() const {
+        int count = 1; // count current node
+        if (leftChild) count += leftChild->size();   // add size of left subtree
+        if (rightChild) count += rightChild->size(); // add size of right subtree
+        return count;
+    }
+
+    // Height of subtree rooted at this node
+    int height() const {
+        int lh = 0, rh = 0;        // left height, right height
+        if (leftChild) lh = leftChild->height();     // height of left subtree
+        if (rightChild) rh = rightChild->height();   // height of right subtree
+        return 1 + max(lh, rh);    // height = 1 + max(left, right)
+    }
+
+    // Find minimum value in subtree
+    T front() const {
+        return (leftChild == nullptr) ? data : leftChild->front();
+    }
+
+    // Find maximum value in subtree
+    T back() const {
+        return (rightChild == nullptr) ? data : rightChild->back();
+    }
+
+    // Search for a value in subtree
+    bool search(const T& key) const {
+        if (key == data) return true;                 // found node
+        if (key < data && leftChild) return leftChild->search(key); // search left
+        if (key > data && rightChild) return rightChild->search(key);// search right
+        return false;                                 // not found
+    }
+
+    // Insert a value in subtree while maintaining BST property
+    bool insert(const T& key, BinarySearchNode<T>*& ptr) {
+        if (ptr == nullptr) {                         // empty position found
+            ptr = new BinarySearchNode<T>(key);      // create new node
+            return true;
+        }
+        if (key < data)                               // key smaller than current node
+            return leftChild->insert(key, leftChild);// insert in left subtree
+        else if (key > data)                          // key larger than current node
+            return rightChild->insert(key, rightChild);// insert in right subtree
+        else
+            return false; // duplicate value, not allowed
+    }
+
+    // Erase a value from subtree
+    bool erase(const T& key, BinarySearchNode<T>*& ptr) {
+        if (ptr == nullptr) return false;            // node not found
+
+        if (key < data) return leftChild->erase(key, leftChild);   // go left
+        else if (key > data) return rightChild->erase(key, rightChild); // go right
+        else {                                       // node found
+            if (isLeaf()) {                          // case 1: leaf node
+                delete ptr;
+                ptr = nullptr;
+            }
+            else if (leftChild && rightChild) {     // case 2: two children
+                data = rightChild->front();         // replace with inorder successor
+                rightChild->erase(data, rightChild);// erase inorder successor
+            }
+            else {                                   // case 3: one child
+                BinarySearchNode<T>* child = (leftChild) ? leftChild : rightChild;
+                delete ptr;
+                ptr = child;                         // replace with child
+            }
+            return true;                             // deletion successful
+        }
+    }
+
+    // Clear entire subtree
+    void clear() {
+        if (leftChild) { leftChild->clear(); delete leftChild; }   // clear left
+        if (rightChild) { rightChild->clear(); delete rightChild; }// clear right
+    }
+};
+
+// Binary Search Tree
+template <class T>
+class BinarySearchTree {
+private:
+    BinarySearchNode<T>* rootNode; // pointer to root
+
+    //traversals
+    void inorder(BinarySearchNode<T>* node) { // left, root, right
+        if (!node) return;                     // base case
+        inorder(node->leftChild);              // traverse left
+        cout << node->retrieve() << " ";       // visit root
+        inorder(node->rightChild);             // traverse right
+    }
+
+    void preorder(BinarySearchNode<T>* node) { // root, left, right
+        if (!node) return;
+        cout << node->retrieve() << " ";       // visit root
+        preorder(node->leftChild);             // traverse left
+        preorder(node->rightChild);            // traverse right
+    }
+
+    void postorder(BinarySearchNode<T>* node) { // left, right, root
+        if (!node) return;
+        postorder(node->leftChild);            // traverse left
+        postorder(node->rightChild);           // traverse right
+        cout << node->retrieve() << " ";       // visit root
+    }
+
+public:
+    // Constructor
+    BinarySearchTree() { rootNode = nullptr; }
+
+    // Destructor
+    ~BinarySearchTree() { clear(); }
+
+    // Check if tree is empty
+    bool empty() const { return rootNode == nullptr; }
+
+    // Size of entire tree
+    int size() const { return (rootNode == nullptr) ? 0 : rootNode->size(); }
+
+    // Height of entire tree
+    int height() const { return (rootNode == nullptr) ? 0 : rootNode->height(); }
+
+    // Minimum value in tree
+    T front() const { return rootNode->front(); }
+
+    // Maximum value in tree
+    T back() const { return rootNode->back(); }
+
+    // Insert value in tree
+    bool insert(const T& key) {
+        if (rootNode == nullptr) {                  // empty tree
+            rootNode = new BinarySearchNode<T>(key);
+            return true;
+        }
+        return rootNode->insert(key, rootNode);     // delegate to node
+    }
+
+    // Search value in tree
+    bool search(const T& key) const { return rootNode ? rootNode->search(key) : false; }
+
+    // Count occurrence of value (0 or 1 since no duplicates)
+    int count(const T& key) const { return search(key) ? 1 : 0; }
+
+    // Erase value from tree
+    bool erase(const T& key) { return rootNode ? rootNode->erase(key, rootNode) : false; }
+
+    // Clear entire tree
+    void clear() {
+        if (rootNode) { rootNode->clear(); delete rootNode; rootNode = nullptr; }
+    }
+    // Traversals
+    void inorder() { inorder(rootNode); cout << endl; }   // inorder traversal
+    void preorder() { preorder(rootNode); cout << endl; } // preorder traversal
+    void postorder() { postorder(rootNode); cout << endl; } // postorder traversal
+
+    // Level-order traversal (BFS) using queue
+    void levelOrder() {
+        if (!rootNode) return;
+        queue<BinarySearchNode<T>*> q;
+        q.push(rootNode);                        // push root
+        while (!q.empty()) {
+            BinarySearchNode<T>* curr = q.front();
+            q.pop();
+            cout << curr->retrieve() << " ";     // visit node
+            if (curr->leftChild) q.push(curr->leftChild);   // push left child
+            if (curr->rightChild) q.push(curr->rightChild); // push right child
+        }
+        cout << endl;
+    }
+
+    // Depth-first traversal using stack (DFS)
+    void depthFirst() {
+        if (!rootNode) return;
+        stack<BinarySearchNode<T>*> s;
+        s.push(rootNode);                        // push root
+        while (!s.empty()) {
+            BinarySearchNode<T>* curr = s.top();
+            s.pop();
+            cout << curr->retrieve() << " ";     // visit node
+            if (curr->rightChild) s.push(curr->rightChild); // push right first
+            if (curr->leftChild) s.push(curr->leftChild);   // push left second
+        }
+        cout << endl;
+    }
+};
+int main() {
+    BinarySearchTree<int> bst;
+
+    // Insert values
+    bst.insert(31);
+    bst.insert(45);
+    bst.insert(36);
+    bst.insert(14);
+    bst.insert(52);
+    bst.insert(42);
+
+    // Tree properties
+    cout << "Tree empty? " << (bst.empty() ? "Yes" : "No") << endl;
+    cout << "Size: " << bst.size() << endl;
+    cout << "Height: " << bst.height() << endl;
+    cout << "Min: " << bst.front() << endl;
+    cout << "Max: " << bst.back() << endl;
+
+    // Search / count
+    cout << "Search 36: " << bst.search(36) << endl;
+    cout << "Count 36: " << bst.count(36) << endl;
+
+    // Delete a node
+    bst.erase(36);
+    cout << "After deleting 36, size: " << bst.size() << endl;
+
+    // Traversals
+    cout << "Inorder: "; bst.inorder();
+    cout << "Preorder: "; bst.preorder();
+    cout << "Postorder: "; bst.postorder();
+    cout << "Level-order (BFS): "; bst.levelOrder();
+    cout << "Depth-first (DFS using stack): "; bst.depthFirst();
+
+    return 0;
+}
